@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: './', // ✅ Adicionado para corrigir caminhos no Vercel
   build: {
     outDir: 'dist'
   }

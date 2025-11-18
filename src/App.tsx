@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { StartScreen } from '../src/components/StartScreen';
-import Board from '../src/components/Board';
-import './App.css'; // opcional para estilos globais
+import { Board } from '../src/components/Board';
+import type { Player } from '../src/game/constants';
+import './App.css';
 
 const App: React.FC = () => {
-  const [activePlayers, setActivePlayers] = useState<string[] | null>(null);
+  const [activePlayers, setActivePlayers] = useState<Player[] | null>(null);
 
-  // Reinicia o jogo e volta para a tela de início
   const handleRestart = () => {
     setActivePlayers(null);
   };
@@ -14,7 +14,7 @@ const App: React.FC = () => {
   return (
     <div className="app-container">
       {activePlayers === null ? (
-        <StartScreen onStart={setActivePlayers} />
+        <StartScreen onStart={(players) => setActivePlayers(players as Player[])} />
       ) : (
         <Board activePlayers={activePlayers} onRestart={handleRestart} />
       )}

@@ -1,5 +1,5 @@
-import { getIncrementedPosition } from './movement';
 import { useState } from 'react';
+import { getIncrementedPosition } from './movement';
 import {
   BASE_POSITIONS,
   START_POSITIONS,
@@ -7,10 +7,11 @@ import {
   STATE,
   SAFE_POSITIONS,
 } from './constants';
+import type { Player } from './constants';
 
-export const useLudoGame = (activePlayers: string[]) => {
-  const [positions, setPositions] = useState(() => {
-    const initial: Record<string, number[]> = {};
+export const useLudoGame = (activePlayers: Player[]) => {
+  const [positions, setPositions] = useState<Record<Player, number[]>>(() => {
+    const initial = {} as Record<Player, number[]>;
     for (const player of activePlayers) {
       initial[player] = structuredClone(BASE_POSITIONS[player]);
     }
@@ -33,7 +34,6 @@ export const useLudoGame = (activePlayers: string[]) => {
       BASE_POSITIONS[currentPlayer].includes(pos)
     );
 
-    // Nenhuma peça pode sair da base
     if (allInBase && value !== 6) {
       setTimeout(() => {
         setTurn((turn + 1) % activePlayers.length);
@@ -43,7 +43,6 @@ export const useLudoGame = (activePlayers: string[]) => {
       return value;
     }
 
-    // Verifica se alguma peça pode se mover
     const canMove = playerPositions.some(pos => {
       if (BASE_POSITIONS[currentPlayer].includes(pos)) {
         return value === 6;
@@ -63,10 +62,9 @@ export const useLudoGame = (activePlayers: string[]) => {
     return value;
   };
 
-  const movePiece = (player: string, piece: number) => {
+  const movePiece = (player: Player, piece: number) => {
     const current = positions[player][piece];
 
-    // Se está na base
     if (BASE_POSITIONS[player].includes(current)) {
       if (diceValue === 6) {
         updatePosition(player, piece, START_POSITIONS[player]);
@@ -75,13 +73,11 @@ export const useLudoGame = (activePlayers: string[]) => {
       return;
     }
 
-    // Calcula nova posição
     const newPos = getIncrementedPosition(player, current, diceValue!);
     if (newPos === null) return;
 
     const updated = structuredClone(positions);
 
-    // Captura oponente (exceto em casas seguras)
     for (const opponent of activePlayers) {
       if (opponent === player) continue;
 
@@ -92,11 +88,9 @@ export const useLudoGame = (activePlayers: string[]) => {
       );
     }
 
-    // Atualiza posição do jogador atual
     updated[player][piece] = newPos;
     setPositions(updated);
 
-    // Verifica vitória
     const won = updated[player].every(pos => pos === HOME_POSITIONS[player]);
     if (won) {
       alert(`Jogador ${player} venceu!`);
@@ -104,7 +98,6 @@ export const useLudoGame = (activePlayers: string[]) => {
       return;
     }
 
-    // Troca turno se necessário
     if (diceValue !== 6) {
       setTurn((turn + 1) % activePlayers.length);
     }
@@ -112,14 +105,14 @@ export const useLudoGame = (activePlayers: string[]) => {
     endTurn();
   };
 
-  const updatePosition = (player: string, piece: number, newPos: number) => {
+  const updatePosition = (player: Player, piece: number, newPos: number) => {
     const updated = { ...positions };
     updated[player][piece] = newPos;
     setPositions(updated);
   };
 
   const resetGame = () => {
-    const reset: Record<string, number[]> = {};
+    const reset = {} as Record<Player, number[]>;
     for (const player of activePlayers) {
       reset[player] = structuredClone(BASE_POSITIONS[player]);
     }
